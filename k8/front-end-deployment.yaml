@@ -1,0 +1,59 @@
+##################################################################################################
+# front-end service
+##################################################################################################
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  namespace: default
+  name: front-end
+  labels:
+    app: front-end
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: front-end
+  template:
+    metadata:
+      labels:
+        app: front-end
+    spec:
+      containers:
+        - name: front-end
+          image: todkap/front-end:1.0.0
+          imagePullPolicy: Always
+          ports:
+            - name: web
+              containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: front-end
+
+spec:
+  ports:
+    - protocol: TCP
+      name: web
+      port: 8080
+  selector:
+    app: front-end
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: front-end
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Exact
+        backend:
+          service:
+            name: front-end
+            port:
+              number: 8080
+
+---
