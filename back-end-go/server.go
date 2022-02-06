@@ -19,6 +19,11 @@ type MyStorageItem struct {
 	Key     string  `json:"k,omitempty" bson:"_id,omitempty"`
 	Value   string  `json:"v"`
 }
+type MyLegacyStorageItem struct {
+	Key     string  `json:"key,omitempty" bson:"_id,omitempty"`
+	Value   string  `json:"value"`
+}
+
 type MyStorage struct {
 	Items []MyStorageItem
 }
@@ -34,9 +39,12 @@ func main() {
 	
 	// Get all items from storage service
 	app.Get("/storage", func(c *fiber.Ctx) error {
+
+		if(localStorage.ItemCount() == 0){
+			return c.JSON(localStorage)
+		}
 		var cachedItems = localStorage.Items()
 		fmt.Println("result size", len(cachedItems) )
-
 		storage := MyStorage{}
 		for key, element := range cachedItems {
 			fmt.Println("Key:", key, "=>", "Element:", element.Object)
@@ -59,7 +67,7 @@ func main() {
 
 	// add an item to storage
 	app.Put("/storage", func(c *fiber.Ctx) error {
-		storageItem := new(MyStorageItem)
+		storageItem := new(MyLegacyStorageItem)
 		// Parse body into struct
 		if err := c.BodyParser(storageItem); err != nil {
 			return c.Status(400).SendString(err.Error())
@@ -71,10 +79,10 @@ func main() {
 	})
 
 	// Delete an item from storage
-	app.Delete("/employee/:id", func(c *fiber.Ctx) error {
+	app.Delete("/storage/:id", func(c *fiber.Ctx) error {
 		localStorage.Delete(c.Params("id"))
 		// the record was deleted
 		return c.SendStatus(204)
 	})
-	log.Fatal(app.Listen(":8080"))
+	log.Fatal(app.Listen(":9080"))
 }

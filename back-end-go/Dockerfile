@@ -1,22 +1,17 @@
 ### build stage ###
 FROM golang:1.17.6-alpine AS builder
 
-RUN apk --no-cache add ca-certificates
+RUN mkdir /build
+ADD *.go /build/
+ADD *.mod /build/
+ADD *.sum /build/
 
-ENV GO111MODULE=on
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64
-
-WORKDIR /app/back-end-gos
-
-COPY go.mod go.mod
-COPY go.sum go.sum
-
-RUN go mod download
-RUN go build -o server .
+WORKDIR /build
+RUN CGO_ENABLED=0 GOOS=linux go build -o build
 
 
-### run stage ###
-FROM alpine:3.15
-COPY --from=builder /go/server ./server
-EXPOSE 8080
-CMD ["./server"]
+FROM alpine:latest
+WORKDIR /root/
+COPY --from=builder /build .
+EXPOSE 9080
+CMD ["./build"]
