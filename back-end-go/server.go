@@ -35,7 +35,9 @@ func (storage *MyStorage) AddItem(item MyStorageItem) {
 func main() {
 
 	// Create a Fiber app
-	app := fiber.New()
+	app := fiber.New(fiber.Config{
+		ServerHeader:  "Storage App - Go Version",
+	})
 	
 	// Get all items from storage service
 	app.Get("/storage", func(c *fiber.Ctx) error {
