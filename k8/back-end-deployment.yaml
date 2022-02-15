@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: back-end
-          image: todkap/back-end-in-memory:1.0.0
+          image: todkap/back-end-in-memory:1.0.1
           imagePullPolicy: Always
           ports:
             - name: web
